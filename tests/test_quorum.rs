@@ -13,7 +13,10 @@ fn t10_invalid_qc_signature_rejected() {
 fn t11_insufficient_quorum_rejected() {
     let r = check("T11");
     assert_eq!(reason_code(&r), "INVALID_QUORUM_CERTIFICATE");
-    assert!(r.trace.iter().any(|s| s.contains("only 2 distinct signatures")));
+    assert!(r
+        .trace
+        .iter()
+        .any(|s| s.contains("only 2 distinct signatures")));
 }
 
 #[test]

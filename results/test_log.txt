@@ -1,5 +1,32 @@
    Compiling zk-state-anchor-exp v0.1.0 (D:\Research\zk-state-anchor-exp)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.28s
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\zk_state_anchor_exp-1u2oahd61ro5y\s-hofb8nmgol-0u6yj8v.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (lib test) generated 1 warning
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\encoding_probe-0g5j3wlf12qo6\s-hofb8pdaog-078rmwe.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\evidence-3boadl6wnymxk\s-hofb8pcpnc-1augtps.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\encoding_probe-3bi1ni81ny6hn\s-hofb8pdo60-11c5nqu.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (bin "encoding_probe" test) generated 1 warning
+warning: `zk-state-anchor-exp` (bin "evidence" test) generated 1 warning
+warning: `zk-state-anchor-exp` (bin "encoding_probe") generated 1 warning
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_quorum-3buhfsy0e5q3n\s-hofb8pczd7-0a9dp7j.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_anchor-1dnw3e15gq8s8\s-hofb8pd3x2-0oh460t.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_freshness-06ocmdzhsbzbc\s-hofb8pdg7r-066d1ju.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_adversarial-2slkap83ahjxk\s-hofb8pctev-13uqzpn.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_log-0qwfgz2rnceo1\s-hofb8pcm6d-1pdzlq0.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (test "test_quorum") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_anchor") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_freshness") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_adversarial") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_log") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.39s
      Running unittests src\lib.rs (target\debug\deps\zk_state_anchor_exp-d8c384afd6905543.exe)
 
 running 4 tests
@@ -26,22 +53,6 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 
 running 4 tests
 test t13_checkpoint_epoch_regression_rejected ... ok
-NORMAL_PATH_EXECUTION_RECORD:
-[1/10] anchor_record | OK | record.anchor == request.anchor
-[1/10] anchor_digest | OK | computed=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9 provided=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9
-[2/10] public_inputs | OK | GR_h2=00000000000000000000000000000000000000000000000000000000000003e9 GR_anchor=00000000000000000000000000000000000000000000000000000000000003e9 RR_h2=00000000000000000000000000000000000000000000000000000000000003ea RR_anchor=00000000000000000000000000000000000000000000000000000000000003ea
-[3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
-[3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
-[4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
-[5/10] quorum_certificate | OK | signatures=3 detail=valid
-[6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
-[7/10] no_rollback | OK | known_epoch=7 offered_epoch=8
-[7/10] checkpoint_chain | OK | previous_hash=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941 known=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941
-[8/10] anchor_predecessor | OK | anchor_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb trusted_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb
-[9/10] freshness | OK | HonestFreshnessProvider latest_epoch=8 match=true
-[10/10] all_checks | OK | all nine checks passed
-VERDICT: ACCEPT
-test execution_record_normal_path_is_complete ... ok
 ROLLBACK_ATTACK_EXECUTION_RECORD:
 [1/10] anchor_record | OK | record.anchor == request.anchor
 [1/10] anchor_digest | OK | computed=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9 provided=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9
@@ -49,25 +60,43 @@ ROLLBACK_ATTACK_EXECUTION_RECORD:
 [3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
 [3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
 [4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] witness_set_binding | OK | computed_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d expected_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d checkpoint_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d code=OK
 [5/10] quorum_certificate | OK | signatures=3 detail=valid
 [6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
 [7/10] no_rollback | FAIL | known_epoch=9 offered_epoch=8
 VERDICT: REJECT CHECKPOINT_ROLLBACK
+NORMAL_PATH_EXECUTION_RECORD:
+[1/10] anchor_record | OK | record.anchor == request.anchor
+[1/10] anchor_digest | OK | computed=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9 provided=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9
+[2/10] public_inputs | OK | GR_h2=00000000000000000000000000000000000000000000000000000000000003e9 GR_anchor=00000000000000000000000000000000000000000000000000000000000003e9 RR_h2=00000000000000000000000000000000000000000000000000000000000003ea RR_anchor=00000000000000000000000000000000000000000000000000000000000003ea
+[3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
+[3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
+[4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] witness_set_binding | OK | computed_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d expected_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d checkpoint_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d code=OK
+[5/10] quorum_certificate | OK | signatures=3 detail=valid
+[6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
+[7/10] no_rollback | OK | known_epoch=7 offered_epoch=8
+[7/10] checkpoint_chain | OK | previous_hash=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941 known=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941
+[8/10] anchor_predecessor | OK | anchor_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb trusted_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb
+[9/10] freshness | OK | HonestFreshnessProvider latest_epoch=8 offered_epoch=8 latest_hash=6c5a93e0f73a0102610c41fda8b10474aea9867d73a3c9985f7bbd787aa09591 offered_hash=6c5a93e0f73a0102610c41fda8b10474aea9867d73a3c9985f7bbd787aa09591 epoch_match=true hash_match=true match=true
+[10/10] all_checks | OK | all nine checks passed
+VERDICT: ACCEPT
 test execution_record_rollback_attack_stops_before_freshness ... ok
+test execution_record_normal_path_is_complete ... ok
 test all_twenty_scenarios_match_task_package_expectations ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
 
      Running tests\test_anchor.rs (target\debug\deps\test_anchor-99b21bc638e6ac06.exe)
 
 running 9 tests
-test t07_forged_anchor_digest_rejected ... ok
-test t05_modified_policy_version_rejected ... ok
-test t02_modified_grant_root_rejected ... ok
-test t03_modified_revoke_root_rejected ... ok
 test t18_halo2_public_inputs_mismatch_rejected ... ok
-test t19_old_policy_version_rejected ... ok
 test t04_modified_epoch_rejected ... ok
+test t19_old_policy_version_rejected ... ok
+test t03_modified_revoke_root_rejected ... ok
+test t02_modified_grant_root_rejected ... ok
+test t05_modified_policy_version_rejected ... ok
+test t07_forged_anchor_digest_rejected ... ok
 test t06_modified_predecessor_rejected ... ok
 test t01_normal_anchor_accepts ... ok
 
@@ -76,22 +105,34 @@ test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
      Running tests\test_freshness.rs (target\debug\deps\test_freshness-0bfa037863604ba6.exe)
 
 running 4 tests
-test t15_cold_start_with_honest_freshness_accepts ... ok
-test t17_freshness_unavailable_rejected ... ok
-test t16_cold_start_with_stale_freshness_rejected ... ok
 test t14_client_high_watermark_rejects_rollback ... ok
+test t15_cold_start_with_honest_freshness_accepts ... ok
+test t16_cold_start_with_stale_freshness_rejected ... ok
+test t17_freshness_unavailable_rejected ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\test_freshness_binding.rs (target\debug\deps\test_freshness_binding-def13880654f4e15.exe)
+
+running 6 tests
+test f01_correct_epoch_and_hash_accepts ... ok
+test f04_wrong_epoch_correct_hash_rejected ... ok
+test f02_stale_epoch_and_old_hash_rejected ... ok
+test f03_correct_epoch_wrong_hash_rejected ... ok
+test f05_provider_unavailable_rejected ... ok
+test f06_decision_ignores_trace_text ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
 
      Running tests\test_log.rs (target\debug\deps\test_log-77bc7e8e11ea66b7.exe)
 
 running 4 tests
 test merkle_inclusion_supports_non_power_of_two_tree ... ok
+test t08_tampered_inclusion_proof_rejected ... ok
 test t20_modified_log_record_rejected ... ok
 test t09_other_log_proof_rejected ... ok
-test t08_tampered_inclusion_proof_rejected ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
 
      Running tests\test_quorum.rs (target\debug\deps\test_quorum-e37fda0a9397b860.exe)
 
@@ -100,7 +141,28 @@ test t11_insufficient_quorum_rejected ... ok
 test t10_invalid_qc_signature_rejected ... ok
 test t12_checkpoint_parent_mismatch_rejected ... ok
 
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests\test_witness_set_binding.rs (target\debug\deps\test_witness_set_binding-1c70563a4d6563d3.exe)
+
+running 13 tests
+PYTHON_WITNESS_SET_ROOT=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d
+RUST_WITNESS_SET_ROOT=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d
+test w08_public_key_order_does_not_change_root ... ok
+test w05_duplicate_witness_id_not_counted_twice ... ok
+test w09_rust_root_matches_python_vector_and_wrong_encoding_is_rejected ... ok
+test w02_checkpoint_witness_set_root_replaced_rejected ... ok
+test w06_only_two_valid_signatures_rejected ... ok
+test w03_one_public_key_replaced_with_original_qc_rejected ... ok
+test w10_different_witness_set_replacement_rejected ... ok
+test w07_three_signatures_one_tampered_rejected ... ok
+test w04_unauthorized_witness_id_rejected ... ok
+test w01_correct_witness_set_and_qc_accepts ... ok
+test verifier_w02_replaced_root_rejects_with_specific_code ... ok
+test verifier_w03_changed_trusted_key_rejects_with_specific_code ... ok
+test verifier_w01_accepts_and_records_binding ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
 
    Doc-tests zk_state_anchor_exp
 

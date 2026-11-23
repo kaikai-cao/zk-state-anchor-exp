@@ -1,6 +1,8 @@
 //! AuthzStateAnchor：把 D2-A 的 Poseidon GR/RR 与外部 D1-E 状态链连接的数据结构和摘要。
 
-use crate::encoding::{bytes_with_len, domain, sha256, str_with_len, u32be, u64be, FieldBytes, Hash32};
+use crate::encoding::{
+    bytes_with_len, domain, sha256, str_with_len, u32be, u64be, FieldBytes, Hash32,
+};
 
 pub const PROTOCOL_VERSION: u32 = 1;
 
@@ -57,7 +59,10 @@ pub struct AnchorRecord {
 impl AnchorRecord {
     pub fn new(anchor: AuthzStateAnchor) -> Self {
         let anchor_digest = anchor.digest();
-        Self { anchor, anchor_digest }
+        Self {
+            anchor,
+            anchor_digest,
+        }
     }
 
     pub fn encode(&self) -> Vec<u8> {

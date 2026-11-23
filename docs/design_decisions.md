@@ -40,6 +40,14 @@ D1-E 的 checkpoint、日志与状态根均为 SHA-256。为了避免擅自改�
 
 测试与 `src/bin/evidence.rs` 共用 `src/scenarios.rs`。这样 T01–T20 的断言、报告表格与执行记录都来自同一组构造代码，不会出现“报告写一套、测试跑另一套”。
 
-## 7. 创新边界
+## 7. R1：把信任来源从签名器改为显式公钥集合
+
+D2-B 初版的 `VerifyRequest` 直接持有 `Arc<QuorumSigner>`，虽然只调用它的 `verify_qc`，但这个接口形状无法表达“验证者只信任带外公钥”这一约束，也无法阻止调用方把测试签名器当作信任来源。R1 把它换成 `TrustedWitnessSet{id→public_key, threshold, expected_root}`；签名器改名 `TestQuorumSigner` 并明确标注为测试工具，公开 seed 只生成可复现测试密钥。
+
+witness set root 不自行设计：直接复用 D1-E `encode_witness_set` 的 hex 字符串字典序 + 8 字节大端长度前缀 + SHA-256，并用同一 Python 函数生成固定向量。代价是这条编码没有域标签、与 D2-B 自己的 u32 前缀不同，因此必须靠跨语言固定向量而不是“看起来合理”来防漂移。
+
+freshness 初版从 trace 字符串里解析 `match=true`，判定与日志文本耦合。R1 改为从 `TrustedCheckpoint` 结构直接比较 epoch 与 checkpoint_hash；trace 只回显结果，不再决定结果。失败仍然 fail-closed，且不接真实网络服务。
+
+## 8. 创新边界
 
 本轮结果是**系统集成原型**：把已有的 Merkle inclusion、quorum certificate、规范化编码、本地 epoch 高水位与外部 freshness 接口组合起来，并明确各层的信任边界。没有提出新的密码学原语，也没有证明新的安全属性。如果后续发现某个具体缺口（例如 GR/RR 与 `state_root` 的语义绑定），应围绕该缺口继续研究，而不是把本轮组合包装成创新。

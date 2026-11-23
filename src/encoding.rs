@@ -48,7 +48,10 @@ impl FieldBytes {
     pub fn from_hex(s: &str) -> Result<Self, EncodeError> {
         let raw = Vec::from_hex(s).map_err(|_| EncodeError::InvalidHex)?;
         if raw.len() != 32 {
-            return Err(EncodeError::InvalidLength { expected: 32, got: raw.len() });
+            return Err(EncodeError::InvalidLength {
+                expected: 32,
+                got: raw.len(),
+            });
         }
         let mut b = [0u8; 32];
         b.copy_from_slice(&raw);
@@ -75,7 +78,10 @@ impl Hash32 {
     pub fn from_hex(s: &str) -> Result<Self, EncodeError> {
         let raw = Vec::from_hex(s).map_err(|_| EncodeError::InvalidHex)?;
         if raw.len() != 32 {
-            return Err(EncodeError::InvalidLength { expected: 32, got: raw.len() });
+            return Err(EncodeError::InvalidLength {
+                expected: 32,
+                got: raw.len(),
+            });
         }
         let mut b = [0u8; 32];
         b.copy_from_slice(&raw);

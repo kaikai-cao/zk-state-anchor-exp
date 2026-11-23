@@ -50,7 +50,7 @@ D1-E adapter 已逐行核查原仓库 `canonical.py:11-72`、`crypto.py:25-26,50
 
 按 D1-E `quorum.py`，QC 验证检查 `checkpoint_hash`、`epoch`、`previous_hash`、至少 3 个不同 witness_id，以及每个 witness 对**完整 checkpoint 编码**的 Ed25519 签名。该编码覆盖 `chain_id`、`epoch`、`previous_hash`、`state_root`、`log_root`、`policy_version`、`witness_set_root`、`log_size`、`timestamp`。
 
-本 adapter 使用确定性派生的 4 个 Ed25519 见证者密钥（与 D1-E 相同的 `sha256(seed|witness_id)` 思路），3-of-4 验签；不重新实现 D1-E 签名锁定表。
+R1 起测试签名器 `TestQuorumSigner` 只用于构造 QC，验证器不再接收签名器；生产验证输入是 `TrustedWitnessSet`（显式公钥 + 阈值 + 带外期望根）。验签前先核对集合根与 `checkpoint.witness_set_root`，再检查 ID 唯一性、阈值、集合成员身份与 Ed25519 签名。不重新实现 D1-E 签名锁定表。
 
 ## 5. Freshness Provider 的信任假设
 
@@ -60,7 +60,7 @@ D1-E adapter 已逐行核查原仓库 `canonical.py:11-72`、`crypto.py:25-26,50
 | `StaleFreshnessProvider` | 返回历史 checkpoint | 冷启动客户端必须拒绝（T16） |
 | `UnavailableFreshnessProvider` | 返回错误 | 一律拒绝，不回退到“有 QC 就接受”（T17） |
 
-验证器总是调用 provider；最新性来自外部信任假设，不是 Merkle/QC 的内部属性。测试 Provider 均为模拟，不连接真实服务，不宣称生产级 freshness。
+R1 起判定改为结构化：`TrustedCheckpoint.epoch` 与 `checkpoint_hash` 必须同时等于 presented checkpoint；失败关闭且不读取 trace 字符串。最新性来自外部信任假设，不是 Merkle/QC 的内部属性。测试 Provider 均为模拟，不连接真实服务，不宣称生产级 freshness。
 
 ## 6. T01–T20 完整测试结果
 
@@ -99,7 +99,7 @@ D1-E adapter 已逐行核查原仓库 `canonical.py:11-72`、`crypto.py:25-26,50
 - T16 → `FRESHNESS_UNAVAILABLE`
 - T18 → `PUBLIC_INPUT_MISMATCH`
 
-全部 20 项实际结果与任务包预期一致；`cargo test --locked` 总测试数 28（4 库单测 + 24 集成测试），无失败。
+全部 20 项实际结果与任务包预期一致；加入 R1 后 `cargo test --locked` 总测试数 47（4 库单测 + 43 集成测试），无失败。
 
 ## 7. 执行记录
 
@@ -112,12 +112,13 @@ D1-E adapter 已逐行核查原仓库 `canonical.py:11-72`、`crypto.py:25-26,50
 [3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
 [3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
 [4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] witness_set_binding | OK | computed_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d expected_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d checkpoint_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d code=OK
 [5/10] quorum_certificate | OK | signatures=3 detail=valid
 [6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
 [7/10] no_rollback | OK | known_epoch=7 offered_epoch=8
 [7/10] checkpoint_chain | OK | previous_hash=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941 known=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941
 [8/10] anchor_predecessor | OK | anchor_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb trusted_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb
-[9/10] freshness | OK | HonestFreshnessProvider latest_epoch=8 match=true
+[9/10] freshness | OK | HonestFreshnessProvider latest_epoch=8 offered_epoch=8 latest_hash=6c5a93e0f73a0102610c41fda8b10474aea9867d73a3c9985f7bbd787aa09591 offered_hash=6c5a93e0f73a0102610c41fda8b10474aea9867d73a3c9985f7bbd787aa09591 epoch_match=true hash_match=true match=true
 [10/10] all_checks | OK | all nine checks passed
 VERDICT: ACCEPT
 ```
@@ -131,6 +132,7 @@ VERDICT: ACCEPT
 [3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
 [3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
 [4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] witness_set_binding | OK | computed_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d expected_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d checkpoint_root=a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d code=OK
 [5/10] quorum_certificate | OK | signatures=3 detail=valid
 [6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
 [7/10] no_rollback | FAIL | known_epoch=9 offered_epoch=8
@@ -153,7 +155,7 @@ T14 在客户端高水位检查处早停，未进入 freshness 步骤；失败�
 2. anchor digest 使用 SHA-256 以复用 D1-E，未在 Halo2 电路内验证；若需电路内验证需另做 Poseidon 版本或桥接。
 3. freshness 由测试 Provider 模拟，未接入真实服务，不构成生产最新性保证。
 4. D2-B 只验证 QC 结果，不重新实现 D1-E 的见证者签名锁定与 split-view 检测。
-5. ALLOW ≠ DENY：本轮不涉及不存在性证明；不验证 Ed25519 签发者身份。
+5. ALLOW ≠ DENY：本轮不涉及不存在性证明；Ed25519 公钥只按带外可信集合匹配，不验证现实世界身份。
 
 ## 10. 复现
 
@@ -164,3 +166,65 @@ python tools/export_report.py
 ```
 
 原始逐项结果与完整轨迹见 `results/verification_results.json`；完整测试日志见 `results/test_log.txt`。
+
+## 11. EXP-D2-B-R1 增补：可信见证者集合绑定与结构化 Freshness
+
+R1 只修复两个边界问题，不重做 D2-B、不扩展协议、不修改 D1-E/D2-A：
+
+1. QC 验签所用公钥集合必须等于 checkpoint 声明并由带外配置固定的 `witness_set_root`；
+2. Freshness 判定改为结构化结果比较，不使用 `freshness_detail.contains("match=true")`。
+
+### 11.1 修改要点
+
+- `VerifyRequest.signer: Arc<QuorumSigner>` 替换为 `trusted_witness_set: TrustedWitnessSet`；验证器只接收公钥，不持有签名私钥，不从公开 seed 派生密钥。
+- `QuorumSigner` 改名 `TestQuorumSigner`，构造入口 `new_test_signer()`；公开 seed `EXP-D1-E-fixed-seed-v1` 仅用于测试密钥，生产集合必须带外提供。
+- witness set root 严格复用 D1-E `canonical.py:86-90` / `crypto.py:33-34`：公钥 hex 字典序排序、每项 8 字节大端长度前缀 + UTF-8、无域标签、SHA-256；不是公钥字节直接拼接。
+- 验签顺序：集合绑定 → checkpoint_hash/epoch/previous_hash → witness ID 唯一 → threshold → 集合成员 → Ed25519；失败保留细分错误码，验证器对外仍归一为 `INVALID_QUORUM_CERTIFICATE`，trace 中给出细分码。
+- 重复 witness ID 直接拒绝，即使重复的是同一条有效签名。
+- freshness 从 `TrustedCheckpoint` 的 `epoch` 与 `checkpoint_hash` 双字段判定；epoch 错或 hash 错或 provider 不可用均拒绝；trace 文本不参与决策。
+
+### 11.2 W01–W10 见证者集合攻击矩阵
+
+| 编号 | 攻击或场景 | 预期 | 实际 | 细分错误码 |
+| --- | --- | --- | --- | --- |
+| W01 | 正确 witness set + 正确 QC | ACCEPT | ACCEPT | `OK` |
+| W02 | checkpoint.witness_set_root 被替换 | REJECT | REJECT | `WITNESS_SET_ROOT_MISMATCH` |
+| W03 | 替换一把公钥，仍使用原 QC | REJECT | REJECT | `WITNESS_SET_ROOT_MISMATCH` |
+| W04 | 未授权 witness ID 签名 | REJECT | REJECT | `UNTRUSTED_WITNESS_ID` |
+| W05 | 重复 witness ID 不重复计票 | REJECT | REJECT | `DUPLICATE_WITNESS_ID` |
+| W06 | 只有两个有效签名 | REJECT | REJECT | `INSUFFICIENT_SIGNATURES` |
+| W07 | 三个签名中一个被篡改 | REJECT | REJECT | `INVALID_SIGNATURE` |
+| W08 | 公钥排序顺序改变 | ROOT_UNCHANGED | ROOT_UNCHANGED | `OK` |
+| W09 | Rust 根须等于 Python 根，错误编码不等价 | MATCH | MATCH | `OK` |
+| W10 | 普通的不同 witness set 替换 | REJECT | REJECT | `WITNESS_SET_ROOT_MISMATCH` |
+
+### 11.3 F01–F06 结构化 Freshness 矩阵
+
+| 编号 | 场景 | 预期 | 实际 | 验证器原因码 |
+| --- | --- | --- | --- | --- |
+| F01 | 正确 epoch + 正确 hash | ACCEPT | ACCEPT | `ACCEPT` |
+| F02 | 旧 epoch + 旧 hash | REJECT | REJECT | `FRESHNESS_UNAVAILABLE` |
+| F03 | 正确 epoch + 错误 hash | REJECT | REJECT | `FRESHNESS_UNAVAILABLE` |
+| F04 | 错误 epoch + 正确 hash | REJECT | REJECT | `FRESHNESS_UNAVAILABLE` |
+| F05 | Provider 不可用 | REJECT | REJECT | `FRESHNESS_UNAVAILABLE` |
+| F06 | 结果与日志文本无关 | ACCEPT | ACCEPT | `ACCEPT` |
+
+### 11.4 Python / Rust witness set root 对照
+
+- 来源：authorization-state-trust-exp/src/canonical.py::encode_witness_set + src/crypto.py::witness_set_root
+- 向量文件：`tests/vectors/witness_set_vectors.json`（4 个 witness ID、4 个公钥、排序前后顺序、双方 root）
+- Python root：`a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d`
+- Rust root：`a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d`
+- 逐字节一致：true
+- 编码语义：4 个 Ed25519 原始公钥 hex 字符串按字典序排序；每项 8 字节大端长度前缀 + UTF-8；无域标签；SHA-256
+
+### 11.5 测试密钥的安全边界
+
+向量与测试 QC 使用的 Ed25519 私钥来自公开测试 seed，可被任何人重算，**不具备机密性**；它们只用于可复现实验与攻击矩阵。验证器结构中没有私钥字段，验证路径没有 seed 派生调用；生产部署必须由带外可信配置提供 4 个公钥、阈值 3 与期望根，不能把测试 signer 或 QC 自带的公钥当作信任来源。
+
+### 11.6 R1 后仍未解决
+
+- GR/RR 与 D1-E `state_root` 背后事件历史的语义绑定缺口仍在；这是下一步要攻克的 ZKP 问题。
+- 未接入真实 Remote Witness Service 与网络级 freshness；freshness 仍是外部信任假设。
+- 未实现 Halo2 内部 anchor 电路、未修改 D1-E 签名锁定与持久化、未改 3-of-4 参数、未改 RFC6962。
+- 本轮是信任链严谨化，不是论文创新或新的密码学安全证明。

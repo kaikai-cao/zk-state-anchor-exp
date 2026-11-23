@@ -26,9 +26,16 @@ fn execution_record_normal_path_is_complete() {
     let r = check("T01");
     let joined = r.trace.join(" | ");
     for stage in [
-        "anchor_digest", "public_inputs", "policy_binding", "log_inclusion",
-        "quorum_certificate", "checkpoint_fields", "no_rollback", "anchor_predecessor",
-        "freshness", "VERDICT: ACCEPT",
+        "anchor_digest",
+        "public_inputs",
+        "policy_binding",
+        "log_inclusion",
+        "quorum_certificate",
+        "checkpoint_fields",
+        "no_rollback",
+        "anchor_predecessor",
+        "freshness",
+        "VERDICT: ACCEPT",
     ] {
         assert!(joined.contains(stage), "normal path trace missing {stage}");
     }

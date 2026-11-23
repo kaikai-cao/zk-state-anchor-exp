@@ -38,7 +38,14 @@ fn main() {
         let reason = result.reason.map(|r| r.code()).unwrap_or("ACCEPT");
         let expected_reason = s.expected_reason.map(|r| r.code()).unwrap_or("ACCEPT");
         let matched = result.accepted == s.expected_accepted && reason == expected_reason;
-        println!("{} | {} | expected={} actual={} | {}", s.id, s.title, expected_reason, reason, if matched { "OK" } else { "MISMATCH" });
+        println!(
+            "{} | {} | expected={} actual={} | {}",
+            s.id,
+            s.title,
+            expected_reason,
+            reason,
+            if matched { "OK" } else { "MISMATCH" }
+        );
         if !matched {
             panic!("scenario {} outcome mismatch", s.id);
         }
@@ -62,5 +69,8 @@ fn main() {
         trace_json(&rollback)
     );
     fs::write("results/verification_results.json", json).expect("write verification_results.json");
-    println!("wrote results/verification_results.json ({} scenarios)", scenarios.len());
+    println!(
+        "wrote results/verification_results.json ({} scenarios)",
+        scenarios.len()
+    );
 }

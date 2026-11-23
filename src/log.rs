@@ -3,6 +3,7 @@
 //! - MTH({}) = SHA-256("")
 //! - MTH({d}) = SHA-256(0x00 || d)
 //! - MTH(D[n]) = SHA-256(0x01 || MTH(D[0:k]) || MTH(D[k:n]))，k 为严格小于 n 的最大 2 幂
+//!
 //! 不支持“填充空节点凑满二叉树”的近似实现。
 
 use crate::encoding::sha256;
@@ -112,7 +113,10 @@ pub struct MerkleLog {
 
 impl MerkleLog {
     pub fn new(log_id: &str) -> Self {
-        Self { log_id: log_id.to_string(), leaves: Vec::new() }
+        Self {
+            log_id: log_id.to_string(),
+            leaves: Vec::new(),
+        }
     }
 
     pub fn append(&mut self, leaf: Vec<u8>) -> usize {

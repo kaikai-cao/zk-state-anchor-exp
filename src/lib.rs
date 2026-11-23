@@ -12,3 +12,4 @@ pub mod log;
 pub mod quorum;
 pub mod scenarios;
 pub mod verifier;
+pub mod witness_set;

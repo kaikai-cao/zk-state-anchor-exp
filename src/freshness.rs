@@ -28,7 +28,12 @@ pub struct HonestFreshnessProvider {
 
 impl HonestFreshnessProvider {
     pub fn for_checkpoint(cp: &crate::checkpoint::Checkpoint) -> Self {
-        Self { latest: TrustedCheckpoint { epoch: cp.epoch, checkpoint_hash: checkpoint_hash(cp) } }
+        Self {
+            latest: TrustedCheckpoint {
+                epoch: cp.epoch,
+                checkpoint_hash: checkpoint_hash(cp),
+            },
+        }
     }
 }
 
@@ -48,7 +53,12 @@ pub struct StaleFreshnessProvider {
 
 impl StaleFreshnessProvider {
     pub fn from_values(epoch: u64, checkpoint_hash: Hash32) -> Self {
-        Self { stale: TrustedCheckpoint { epoch, checkpoint_hash } }
+        Self {
+            stale: TrustedCheckpoint {
+                epoch,
+                checkpoint_hash,
+            },
+        }
     }
 }
 

@@ -1,0 +1,30 @@
+   Compiling zk-state-anchor-exp v0.1.0 (D:\Research\zk-state-anchor-exp)
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\zk_state_anchor_exp-0exvkzbqgoax5\s-hofb8nmj1w-1er18v8.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (lib) generated 1 warning
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\evidence-077mmgoepztk3\s-hofb8pdsa4-0qabrk6.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (bin "evidence") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.59s
+     Running `target\debug\evidence.exe`
+T01 | 正常 anchor + 有效 QC + inclusion | expected=ACCEPT actual=ACCEPT | OK
+T02 | 修改 grant_root | expected=PUBLIC_INPUT_MISMATCH actual=PUBLIC_INPUT_MISMATCH | OK
+T03 | 修改 revoke_root | expected=PUBLIC_INPUT_MISMATCH actual=PUBLIC_INPUT_MISMATCH | OK
+T04 | 修改 epoch | expected=ANCHOR_EPOCH_MISMATCH actual=ANCHOR_EPOCH_MISMATCH | OK
+T05 | 修改 policy_version | expected=POLICY_VERSION_MISMATCH actual=POLICY_VERSION_MISMATCH | OK
+T06 | 修改 prev_anchor_digest | expected=INVALID_PREDECESSOR actual=INVALID_PREDECESSOR | OK
+T07 | 伪造 anchor_digest | expected=INVALID_ANCHOR_DIGEST actual=INVALID_ANCHOR_DIGEST | OK
+T08 | 日志 inclusion proof 错误 | expected=INVALID_LOG_INCLUSION actual=INVALID_LOG_INCLUSION | OK
+T09 | 使用其他日志的 inclusion proof | expected=INVALID_LOG_INCLUSION actual=INVALID_LOG_INCLUSION | OK
+T10 | QC 签名无效 | expected=INVALID_QUORUM_CERTIFICATE actual=INVALID_QUORUM_CERTIFICATE | OK
+T11 | QC quorum 不足 | expected=INVALID_QUORUM_CERTIFICATE actual=INVALID_QUORUM_CERTIFICATE | OK
+T12 | checkpoint 前驱哈希不匹配 | expected=CHECKPOINT_GAP actual=CHECKPOINT_GAP | OK
+T13 | checkpoint epoch 倒退 | expected=ANCHOR_EPOCH_MISMATCH actual=ANCHOR_EPOCH_MISMATCH | OK
+T14 | 客户端已见更新 checkpoint，尝试回滚 | expected=CHECKPOINT_ROLLBACK actual=CHECKPOINT_ROLLBACK | OK
+T15 | 冷启动 + freshness 返回最新 | expected=ACCEPT actual=ACCEPT | OK
+T16 | 冷启动 + freshness 返回旧 checkpoint | expected=FRESHNESS_UNAVAILABLE actual=FRESHNESS_UNAVAILABLE | OK
+T17 | freshness provider 不可用 | expected=FRESHNESS_UNAVAILABLE actual=FRESHNESS_UNAVAILABLE | OK
+T18 | Halo2 public inputs 与 anchor 不一致 | expected=PUBLIC_INPUT_MISMATCH actual=PUBLIC_INPUT_MISMATCH | OK
+T19 | 旧 policy version | expected=POLICY_VERSION_MISMATCH actual=POLICY_VERSION_MISMATCH | OK
+T20 | 修改日志中的 AnchorRecord 内容 | expected=INVALID_LOG_INCLUSION actual=INVALID_LOG_INCLUSION | OK
+wrote results/verification_results.json (20 scenarios)

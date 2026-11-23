@@ -43,10 +43,18 @@ pub struct VerifyResult {
 
 impl VerifyResult {
     pub fn accept(trace: Vec<String>) -> Self {
-        Self { accepted: true, reason: None, trace }
+        Self {
+            accepted: true,
+            reason: None,
+            trace,
+        }
     }
 
     pub fn reject(reason: FailureReason, trace: Vec<String>) -> Self {
-        Self { accepted: false, reason: Some(reason), trace }
+        Self {
+            accepted: false,
+            reason: Some(reason),
+            trace,
+        }
     }
 }

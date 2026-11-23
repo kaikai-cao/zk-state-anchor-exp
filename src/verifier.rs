@@ -9,14 +9,13 @@
 //!
 //! 它不证明 GR/RR 与 D1-E state_root 对应的事件历史在语义上一致；该缺口见 docs/protocol.md。
 
-use std::sync::Arc;
-
 use crate::anchor::{AnchorRecord, Halo2AuthorizationPublicInputs};
 use crate::checkpoint::{checkpoint_hash, Checkpoint};
 use crate::errors::{FailureReason, VerifyResult};
 use crate::freshness::FreshnessProvider;
 use crate::log::InclusionProof;
-use crate::quorum::QuorumSigner;
+use crate::quorum::QuorumCertificate;
+use crate::witness_set::{QcError, TrustedWitnessSet};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ExpectedState {
@@ -39,12 +38,13 @@ pub struct VerifyRequest {
     pub record: AnchorRecord,
     pub inclusion: InclusionProof,
     pub checkpoint: Checkpoint,
-    pub qc: crate::quorum::QuorumCertificate,
+    pub qc: QuorumCertificate,
     pub halo2: Halo2AuthorizationPublicInputs,
     pub expected: ExpectedState,
     pub client: ClientState,
     pub freshness: Box<dyn FreshnessProvider>,
-    pub signer: Arc<QuorumSigner>,
+    /// 带外显式可信集合。验证器不持有签名私钥，也不从公开 seed 派生密钥。
+    pub trusted_witness_set: TrustedWitnessSet,
 }
 
 fn step(trace: &mut Vec<String>, n: usize, name: &str, detail: &str, ok: bool) {
@@ -65,12 +65,33 @@ fn done(mut trace: Vec<String>, reason: Option<FailureReason>) -> VerifyResult {
     }
 }
 
+/// 把细分 QC 错误码映射为可读 trace 细节；码本身仍以 `code=` 前缀保留。
+fn qc_detail(err: QcError, req: &VerifyRequest) -> String {
+    let code = err.code();
+    let human = match err {
+        QcError::InsufficientSignatures => format!(
+            "only {} distinct signatures, need {}",
+            req.qc.distinct_signer_count(),
+            req.trusted_witness_set.threshold
+        ),
+        QcError::InvalidSignature => "invalid signature from trusted witness".to_string(),
+        _ => code.to_string(),
+    };
+    format!("{} {}", code, human)
+}
+
 pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
     let mut trace = Vec::new();
 
     // 1. AnchorRecord 编码一致性与 anchor digest
     let record_ok = req.record.anchor == req.anchor;
-    step(&mut trace, 1, "anchor_record", "record.anchor == request.anchor", record_ok);
+    step(
+        &mut trace,
+        1,
+        "anchor_record",
+        "record.anchor == request.anchor",
+        record_ok,
+    );
     if !record_ok {
         return done(trace, Some(FailureReason::AnchorRecordMismatch));
     }
@@ -80,7 +101,11 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
         &mut trace,
         1,
         "anchor_digest",
-        &format!("computed={} provided={}", recomputed.to_hex(), req.record.anchor_digest.to_hex()),
+        &format!(
+            "computed={} provided={}",
+            recomputed.to_hex(),
+            req.record.anchor_digest.to_hex()
+        ),
         digest_ok,
     );
     if !digest_ok {
@@ -113,7 +138,8 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
     }
 
     // 3. epoch / policy version
-    let epoch_ok = req.anchor.epoch == req.expected.epoch && req.anchor.epoch == req.checkpoint.epoch;
+    let epoch_ok =
+        req.anchor.epoch == req.expected.epoch && req.anchor.epoch == req.checkpoint.epoch;
     step(
         &mut trace,
         3,
@@ -155,7 +181,9 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
         "log_inclusion",
         &format!(
             "log_id={} index={} size={} cp_log_root={}",
-            req.inclusion.log_id, req.inclusion.index, req.inclusion.tree_size,
+            req.inclusion.log_id,
+            req.inclusion.index,
+            req.inclusion.tree_size,
             req.checkpoint.log_root.to_hex()
         ),
         inclusion_ok,
@@ -164,18 +192,49 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
         return done(trace, Some(FailureReason::InvalidLogInclusion));
     }
 
-    // 5. D1-E quorum certificate（3-of-4 Ed25519，签名覆盖完整 checkpoint）
-    let qc_result = req.signer.verify_qc(&req.qc, &req.checkpoint);
+    // 5a. 可信见证者集合绑定：验签之前先核对集合根与 checkpoint 声明的根
+    let binding = req.trusted_witness_set.check_binding(&req.checkpoint);
+    let computed_root = req.trusted_witness_set.compute_root();
+    step(
+        &mut trace,
+        5,
+        "witness_set_binding",
+        &format!(
+            "computed_root={} expected_root={} checkpoint_root={} code={}",
+            computed_root.to_hex(),
+            req.trusted_witness_set.expected_root.to_hex(),
+            req.checkpoint.witness_set_root.to_hex(),
+            binding.as_ref().err().map(|e| e.code()).unwrap_or("OK")
+        ),
+        binding.is_ok(),
+    );
+    if let Err(e) = binding {
+        step(
+            &mut trace,
+            5,
+            "quorum_certificate",
+            &format!(
+                "signatures={} detail={}",
+                req.qc.signatures.len(),
+                qc_detail(e, req)
+            ),
+            false,
+        );
+        return done(trace, Some(FailureReason::InvalidQuorumCertificate));
+    }
+
+    // 5b. D1-E quorum certificate（显式可信集合下的 3-of-4 Ed25519 验签）
+    let qc_result = req.trusted_witness_set.verify_qc(&req.qc, &req.checkpoint);
     let qc_ok = qc_result.is_ok();
+    let qc_text = match qc_result {
+        Ok(()) => "valid".to_string(),
+        Err(e) => qc_detail(e, req),
+    };
     step(
         &mut trace,
         5,
         "quorum_certificate",
-        &format!(
-            "signatures={} detail={}",
-            req.qc.signatures.len(),
-            qc_result.as_ref().err().cloned().unwrap_or_else(|| "valid".to_string())
-        ),
+        &format!("signatures={} detail={}", req.qc.signatures.len(), qc_text),
         qc_ok,
     );
     if !qc_ok {
@@ -206,12 +265,21 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
     let mut continuity_ok = true;
     let mut continuity_detail = String::from("cold start: no local high-watermark");
     if let Some(known) = req.client.known_epoch {
-        continuity_detail = format!("known_epoch={} offered_epoch={}", known, req.checkpoint.epoch);
+        continuity_detail = format!(
+            "known_epoch={} offered_epoch={}",
+            known, req.checkpoint.epoch
+        );
         if req.checkpoint.epoch <= known {
             continuity_ok = false;
         }
     }
-    step(&mut trace, 7, "no_rollback", &continuity_detail, continuity_ok);
+    step(
+        &mut trace,
+        7,
+        "no_rollback",
+        &continuity_detail,
+        continuity_ok,
+    );
     if !continuity_ok {
         return done(trace, Some(FailureReason::CheckpointRollback));
     }
@@ -226,7 +294,10 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
         &format!(
             "previous_hash={} known={}",
             req.checkpoint.previous_hash.to_hex(),
-            req.client.known_checkpoint_hash.map(|h| h.to_hex()).unwrap_or_else(|| "none".to_string())
+            req.client
+                .known_checkpoint_hash
+                .map(|h| h.to_hex())
+                .unwrap_or_else(|| "none".to_string())
         ),
         chain_ok,
     );
@@ -251,23 +322,34 @@ pub fn verify_authz_state_anchor(req: &VerifyRequest) -> VerifyResult {
         return done(trace, Some(FailureReason::InvalidPredecessor));
     }
 
-    // 9. 外部 freshness：不可用或返回与 presented checkpoint 不一致的旧状态都拒绝
-    let freshness_detail = match req.freshness.get_latest_checkpoint() {
-        Err(e) => format!("{} error={:?}", req.freshness.label(), e),
+    // 9. 外部 freshness：判定只依赖 provider 返回的结构化结果，与 trace 文本无关。
+    //    epoch 与 checkpoint_hash 必须同时匹配；provider 不可用一律失败关闭。
+    let offered_hash = checkpoint_hash(&req.checkpoint);
+    let (freshness_ok, freshness_detail) = match req.freshness.get_latest_checkpoint() {
+        Err(e) => (
+            false,
+            format!("{} error={:?} match=false", req.freshness.label(), e),
+        ),
         Ok(latest) => {
-            let matches = latest.epoch == req.checkpoint.epoch
-                && latest.checkpoint_hash == checkpoint_hash(&req.checkpoint);
-            if matches {
-                format!("{} latest_epoch={} match=true", req.freshness.label(), latest.epoch)
-            } else {
+            let epoch_ok = latest.epoch == req.checkpoint.epoch;
+            let hash_ok = latest.checkpoint_hash == offered_hash;
+            let ok = epoch_ok && hash_ok;
+            (
+                ok,
                 format!(
-                    "{} latest_epoch={} offered_epoch={} match=false",
-                    req.freshness.label(), latest.epoch, req.checkpoint.epoch
-                )
-            }
+                    "{} latest_epoch={} offered_epoch={} latest_hash={} offered_hash={} epoch_match={} hash_match={} match={}",
+                    req.freshness.label(),
+                    latest.epoch,
+                    req.checkpoint.epoch,
+                    latest.checkpoint_hash.to_hex(),
+                    offered_hash.to_hex(),
+                    epoch_ok,
+                    hash_ok,
+                    ok
+                ),
+            )
         }
     };
-    let freshness_ok = freshness_detail.contains("match=true");
     step(&mut trace, 9, "freshness", &freshness_detail, freshness_ok);
     if !freshness_ok {
         return done(trace, Some(FailureReason::FreshnessUnavailable));

@@ -50,7 +50,10 @@ pub fn encode_d1e_checkpoint(cp: &Checkpoint) -> Vec<u8> {
     out.extend_from_slice(&enc_str("Checkpoint"));
     out.extend_from_slice(&enc_field("chain_id", &enc_str(&cp.chain_id)));
     out.extend_from_slice(&enc_field("epoch", &enc_int(cp.epoch as i64)));
-    out.extend_from_slice(&enc_field("previous_hash", &enc_str(&cp.previous_hash.to_hex())));
+    out.extend_from_slice(&enc_field(
+        "previous_hash",
+        &enc_str(&cp.previous_hash.to_hex()),
+    ));
     out.extend_from_slice(&enc_field("state_root", &enc_str(&cp.state_root.to_hex())));
     out.extend_from_slice(&enc_field("log_root", &enc_str(&cp.log_root.to_hex())));
     out.extend_from_slice(&enc_field("policy_version", &enc_str(&cp.policy_version)));

@@ -7,14 +7,19 @@ pub fn check(id: &str) -> VerifyResult {
     let scenario = by_id(id);
     let result = verify_authz_state_anchor(&scenario.request);
     assert_eq!(
-        result.accepted, scenario.expected_accepted,
+        result.accepted,
+        scenario.expected_accepted,
         "{} acceptance mismatch: reason={:?}\n{}",
-        id, result.reason, result.trace.join("\n")
+        id,
+        result.reason,
+        result.trace.join("\n")
     );
     assert_eq!(
-        result.reason, scenario.expected_reason,
+        result.reason,
+        scenario.expected_reason,
         "{} reason mismatch\n{}",
-        id, result.trace.join("\n")
+        id,
+        result.trace.join("\n")
     );
     result
 }

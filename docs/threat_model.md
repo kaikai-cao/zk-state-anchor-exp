@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | 恶意 prover / gateway | 可篡改 anchor 字段、Halo2 public inputs、checkpoint 字段、伪造 inclusion proof、重放旧 checkpoint | 主要攻击来源 |
 | 日志文件 | 可修改/替换已有日志内容或提供另一棵树的 proof | T08/T09/T20 |
-| 见证者 | 可被收买以对错误 checkpoint 签名，但假定至少 3 个诚实才能形成 QC | T10/T11；双签锁定由 D1-E 负责 |
+| 见证者 | 可被收买以对错误 checkpoint 签名，但假定至少 3 个诚实才能形成 QC；攻击者可替换本地公钥集合 | T10/T11 + W01–W10；双签锁定由 D1-E 负责 |
 | Freshness Provider | 可返回旧 checkpoint，或完全不可用 | T16/T17；本轮为测试模拟 |
 | 客户端 | 持有本地最高认可 checkpoint；冷启动时没有 | T14/T15/T16 |
 
@@ -27,6 +27,8 @@
 | epoch/policy 绑定 | 是 | anchor、checkpoint、expected 三方比对 | T04/T05/T13/T19 |
 | 日志 inclusion | 是 | RFC 6962 inclusion proof + log_id 约束 | T08/T09/T20 |
 | checkpoint 认证 | 是 | D1-E 3-of-4 QC，验签覆盖完整 checkpoint 编码 | T10/T11 |
+| 可信见证者集合绑定（R1） | 是 | 带外公钥集合根 == expected_root == checkpoint.witness_set_root；ID 唯一、阈值、成员身份、Ed25519 | W01–W10 |
+| 结构化新鲜性判定（R1） | 是（provider 假设下） | `epoch` 与 `checkpoint_hash` 双字段匹配，不解析 trace 文本 | F01–F06 |
 | checkpoint 连续性 | 是 | previous_hash、epoch 与客户端高水位 | T12/T13/T14 |
 | 锚点前驱连续性 | 是 | `prev_anchor_digest` 与可信前驱比对 | T06 |
 | 防客户端已知状态回滚 | 是 | 本地 `known_epoch` 单调检查 | T14 |
@@ -42,7 +44,8 @@
 - 本地 epoch 高水位只防“已见过”的回滚，不防冷启动拿到旧状态。
 - inclusion proof 只证明记录在该 Merkle 树中，不证明树是最新树，也不证明记录语义正确。
 - 本轮 `state_root` 与 `log_root` 是 D1-E 的两个不同承诺；`anchor_digest` 是第三个外部承诺。验证器不证明三者语义等价。
-- 不验证 Ed25519 签发者身份、不验证授权图 DENY、不在电路内验证 SHA-256、不实现 BFT 共识。
+- 不验证 Ed25519 签发者的现实身份，只验证其公钥属于带外可信集合；不验证授权图 DENY、不在电路内验证 SHA-256、不实现 BFT 共识。
+- 公开 seed 派生的测试密钥无机密性；生产可信集合必须带外提供，不能从 QC、日志或测试签名器反推。
 
 ## 5. 安全结论的表述边界
 

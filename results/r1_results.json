@@ -1,0 +1,31 @@
+{
+  "experiment": "EXP-D2-B-R1",
+  "witness_set_cases": [
+    {"id": "W01", "scenario": "正确 witness set + 正确 QC", "expected": "ACCEPT", "actual": "ACCEPT", "code": "OK"},
+    {"id": "W02", "scenario": "checkpoint.witness_set_root 被替换", "expected": "REJECT", "actual": "REJECT", "code": "WITNESS_SET_ROOT_MISMATCH"},
+    {"id": "W03", "scenario": "替换一把公钥，仍使用原 QC", "expected": "REJECT", "actual": "REJECT", "code": "WITNESS_SET_ROOT_MISMATCH"},
+    {"id": "W04", "scenario": "未授权 witness ID 签名", "expected": "REJECT", "actual": "REJECT", "code": "UNTRUSTED_WITNESS_ID"},
+    {"id": "W05", "scenario": "重复 witness ID 不重复计票", "expected": "REJECT", "actual": "REJECT", "code": "DUPLICATE_WITNESS_ID"},
+    {"id": "W06", "scenario": "只有两个有效签名", "expected": "REJECT", "actual": "REJECT", "code": "INSUFFICIENT_SIGNATURES"},
+    {"id": "W07", "scenario": "三个签名中一个被篡改", "expected": "REJECT", "actual": "REJECT", "code": "INVALID_SIGNATURE"},
+    {"id": "W08", "scenario": "公钥排序顺序改变", "expected": "ROOT_UNCHANGED", "actual": "ROOT_UNCHANGED", "code": "OK"},
+    {"id": "W09", "scenario": "Rust 根须等于 Python 根，错误编码不等价", "expected": "MATCH", "actual": "MATCH", "code": "OK"},
+    {"id": "W10", "scenario": "普通的不同 witness set 替换", "expected": "REJECT", "actual": "REJECT", "code": "WITNESS_SET_ROOT_MISMATCH"}
+  ],
+  "freshness_cases": [
+    {"id": "F01", "scenario": "正确 epoch + 正确 hash", "expected": "ACCEPT", "actual": "ACCEPT", "code": "ACCEPT"},
+    {"id": "F02", "scenario": "旧 epoch + 旧 hash", "expected": "REJECT", "actual": "REJECT", "code": "FRESHNESS_UNAVAILABLE"},
+    {"id": "F03", "scenario": "正确 epoch + 错误 hash", "expected": "REJECT", "actual": "REJECT", "code": "FRESHNESS_UNAVAILABLE"},
+    {"id": "F04", "scenario": "错误 epoch + 正确 hash", "expected": "REJECT", "actual": "REJECT", "code": "FRESHNESS_UNAVAILABLE"},
+    {"id": "F05", "scenario": "Provider 不可用", "expected": "REJECT", "actual": "REJECT", "code": "FRESHNESS_UNAVAILABLE"},
+    {"id": "F06", "scenario": "结果与日志文本无关", "expected": "ACCEPT", "actual": "ACCEPT", "code": "ACCEPT"}
+  ],
+  "cross_language": {
+    "source": "authorization-state-trust-exp/src/canonical.py::encode_witness_set + src/crypto.py::witness_set_root",
+    "vector_file": "tests/vectors/witness_set_vectors.json",
+    "python_root": "a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d",
+    "rust_root": "a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d",
+    "match": true,
+    "encoding_note": "4 个 Ed25519 原始公钥 hex 字符串按字典序排序；每项 8 字节大端长度前缀 + UTF-8；无域标签；SHA-256"
+  }
+}

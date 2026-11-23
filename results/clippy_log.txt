@@ -1,0 +1,2 @@
+    Checking zk-state-anchor-exp v0.1.0 (D:\Research\zk-state-anchor-exp)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.71s

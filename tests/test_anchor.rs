@@ -6,14 +6,20 @@ use common::{check, reason_code};
 fn t01_normal_anchor_accepts() {
     let r = check("T01");
     assert_eq!(reason_code(&r), "ACCEPT");
-    assert!(r.trace.iter().any(|s| s.contains("[9/10] freshness") && s.contains("match=true")));
+    assert!(r
+        .trace
+        .iter()
+        .any(|s| s.contains("[9/10] freshness") && s.contains("match=true")));
 }
 
 #[test]
 fn t02_modified_grant_root_rejected() {
     let r = check("T02");
     assert_eq!(reason_code(&r), "PUBLIC_INPUT_MISMATCH");
-    assert!(r.trace.iter().any(|s| s.contains("GR_h2") && s.contains("GR_anchor")));
+    assert!(r
+        .trace
+        .iter()
+        .any(|s| s.contains("GR_h2") && s.contains("GR_anchor")));
 }
 
 #[test]
