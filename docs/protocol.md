@@ -98,6 +98,18 @@ enc_str(k)       = u64be(len(utf8(k))) || utf8(k)      // 8 字节大端长度�
 
 `public_keys_hex` 是 32 字节原始 Ed25519 公钥的小写 hex 字符串；排序按 Python `sorted()` 对 hex 字符串的字典序；**没有域标签**，不能套用 D2-B 自身的 u32 长度前缀规则。固定向量见 `tests/vectors/witness_set_vectors.json`，Python 与 Rust root 均为 `a76cf9ac0e6df916ba3bac18ce7a4e9e93b813b437a21cd35ae79a178905119d`。
 
+### 3.5 可信配置有效性（R2 新增）
+
+生产配置入口为 `TrustedWitnessSet::from_trusted_config(entries, threshold, expected_root)`：
+
+- `expected_root` 必须由调用方显式提供，构造时重新计算集合根；不一致直接拒绝初始化；
+- 结构约束 `1 <= threshold <= n`，`n` 为唯一公钥数量；空集合、零阈值、阈值超限拒绝；
+- witness ID 唯一，公钥唯一；不同 ID 复用同一把公钥在构造期拒绝，因为 QC 签名消息不含 witness ID，否则一把私钥可伪装成多个独立见证者；
+- 测试构造器 `from_verifying_keys_for_tests` 标记为 test-only，仅供场景与测试使用，不能证明根来自带外配置；
+- 验证器在 `check_binding` / `verify_qc` 前重新执行结构校验，防止配置对象被事后篡改形成零阈值空签名绕过。
+
+默认研究参数仍为 **3-of-4**；1-of-4 / 4-of-4 只是合法配置边界测试，不改变实验协议参数。
+
 ## 4. `state_root` / `log_root` / `anchor_digest` 的关系
 
 三者是**不同的承诺**，不能互相替代：

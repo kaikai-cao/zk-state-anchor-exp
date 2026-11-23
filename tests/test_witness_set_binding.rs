@@ -20,7 +20,7 @@ fn base_signer() -> TestQuorumSigner {
 }
 
 fn trusted(signer: &TestQuorumSigner) -> TrustedWitnessSet {
-    TrustedWitnessSet::from_verifying_keys(&signer.publics, THRESHOLD)
+    TrustedWitnessSet::from_verifying_keys_for_tests(&signer.publics, THRESHOLD)
 }
 
 fn checkpoint_for(set: &TrustedWitnessSet) -> Checkpoint {
@@ -131,7 +131,7 @@ fn set_from_vectors(json: &str) -> TrustedWitnessSet {
             )
         })
         .collect();
-    TrustedWitnessSet::from_verifying_keys(&entries, THRESHOLD)
+    TrustedWitnessSet::from_verifying_keys_for_tests(&entries, THRESHOLD)
 }
 
 // --- W01–W10 ------------------------------------------------------------------
@@ -289,27 +289,28 @@ fn w10_different_witness_set_replacement_rejected() {
     let set = trusted(&honest);
     let cp = checkpoint_for(&set);
 
-    let rogue = SigningKey::from_bytes(&[0x77u8; 32]);
-    let rogue_entries: Vec<(String, ed25519_dalek::VerifyingKey)> = vec![
-        ("W1".to_string(), rogue.verifying_key()),
-        ("W2".to_string(), rogue.verifying_key()),
-        ("W3".to_string(), rogue.verifying_key()),
-        ("W4".to_string(), rogue.verifying_key()),
-    ];
-    let rogue_set = TrustedWitnessSet::from_verifying_keys(&rogue_entries, THRESHOLD);
+    // R2 起单钥多 ID 在构造期拒绝，因此这里的“另一组集合”也必须使用 4 把不同公钥。
+    let rogue_keys: Vec<SigningKey> = (1..=4u8)
+        .map(|i| SigningKey::from_bytes(&[0x70 + i; 32]))
+        .collect();
+    let rogue_entries: Vec<(String, ed25519_dalek::VerifyingKey)> = rogue_keys
+        .iter()
+        .enumerate()
+        .map(|(i, key)| (format!("W{}", i + 1), key.verifying_key()))
+        .collect();
+    let rogue_set = TrustedWitnessSet::from_verifying_keys_for_tests(&rogue_entries, THRESHOLD);
     let mut rogue_cp = cp.clone();
     rogue_cp.witness_set_root = rogue_set.compute_root();
+    let data = encode_d1e_checkpoint(&rogue_cp);
     let rogue_qc = QuorumCertificate {
         checkpoint_hash: checkpoint_hash(&rogue_cp),
         epoch: rogue_cp.epoch,
         previous_hash: rogue_cp.previous_hash,
-        signatures: (1..=3)
-            .map(|i| {
-                (
-                    format!("W{i}"),
-                    rogue.sign(&encode_d1e_checkpoint(&rogue_cp)).to_bytes(),
-                )
-            })
+        signatures: rogue_keys
+            .iter()
+            .take(THRESHOLD)
+            .enumerate()
+            .map(|(i, key)| (format!("W{}", i + 1), key.sign(&data).to_bytes()))
             .collect(),
     };
     let err = set.verify_qc(&rogue_qc, &rogue_cp).unwrap_err();

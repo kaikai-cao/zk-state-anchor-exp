@@ -1,0 +1,32 @@
+{
+  "experiment": "EXP-D2-B-R2",
+  "cases": [
+    {"id": "C01", "scenario": "正确公钥集合 + 正确带外根 + 3-of-4", "expected": "ACCEPT", "actual": "ACCEPT", "code": "OK"},
+    {"id": "C02", "scenario": "正确集合 + 错误带外根", "expected": "REJECT", "actual": "REJECT", "code": "WITNESS_SET_ROOT_MISMATCH"},
+    {"id": "C03", "scenario": "threshold = 0", "expected": "REJECT", "actual": "REJECT", "code": "THRESHOLD_ZERO"},
+    {"id": "C04", "scenario": "threshold = 5 > 4 把唯一公钥", "expected": "REJECT", "actual": "REJECT", "code": "THRESHOLD_EXCEEDS_UNIQUE_KEYS"},
+    {"id": "C05", "scenario": "空 witness 集合", "expected": "REJECT", "actual": "REJECT", "code": "EMPTY_WITNESS_SET"},
+    {"id": "C06", "scenario": "重复 witness ID", "expected": "REJECT", "actual": "REJECT", "code": "DUPLICATE_WITNESS_ID"},
+    {"id": "C07", "scenario": "不同 ID 对应同一公钥", "expected": "REJECT", "actual": "REJECT", "code": "DUPLICATE_PUBLIC_KEY"},
+    {"id": "C08", "scenario": "合法 1-of-4 配置边界", "expected": "ACCEPT", "actual": "ACCEPT", "code": "OK"},
+    {"id": "C09", "scenario": "合法 4-of-4 配置边界", "expected": "ACCEPT", "actual": "ACCEPT", "code": "OK"},
+    {"id": "C10", "scenario": "合法 3-of-4 正常 QC，真实验证器", "expected": "ACCEPT", "actual": "ACCEPT", "code": "ACCEPT"},
+    {"id": "C11", "scenario": "错误 expected_root 不进入验证流程，真实验证器复检", "expected": "REJECT", "actual": "REJECT", "code": "TRUSTED_SET_ROOT_MISMATCH"},
+    {"id": "C12", "scenario": "非法配置 + 空签名 QC 无法绕过，真实验证器复检", "expected": "REJECT", "actual": "REJECT", "code": "THRESHOLD_ZERO"}
+  ],
+  "existing_tests": 47,
+  "new_tests": 12,
+  "total_tests": 59,
+  "acceptance": {
+    "cargo_fmt": "PASS",
+    "cargo_test": "PASS",
+    "cargo_clippy": "PASS",
+    "git_diff_check": "PASS",
+    "fixed_vector": "PASS"
+  },
+  "unresolved": [
+    "expected_root 的来源仍是外部信任假设，本轮只强制显式传入与构造期核对",
+    "GR/RR 与 D1-E state_root 的事件历史语义绑定未解决",
+    "无真实 Remote Witness Service 与网络级 freshness"
+  ]
+}

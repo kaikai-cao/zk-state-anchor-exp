@@ -1,2 +1,41 @@
     Checking zk-state-anchor-exp v0.1.0 (D:\Research\zk-state-anchor-exp)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.71s
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\zk_state_anchor_exp-0scdrb03xn1jr\s-hofblgot9a-12vwbbq.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\zk_state_anchor_exp-3r6kjyos8p0ac\s-hofblgoqsd-1m7rc7o.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (lib test) generated 1 warning
+warning: `zk-state-anchor-exp` (lib) generated 1 warning
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_adversarial-085otow2wbhrt\s-hofblgxes8-12kll0r.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_anchor-3405qcgmwvxo4\s-hofblgwv3f-0n6ycdd.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_log-3vfcyzfzkpt9q\s-hofblgxg7j-1j8zkkf.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\evidence-2crtznfe33nb2\s-hofblgx0v4-0zk92uk.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_freshness-0gysksu2iv6nm\s-hofblpb1gi-0lsk6mx.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\encoding_probe-11cp7c0qjzx2y\s-hofblgwchr-0310o34.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\encoding_probe-1bxqxiyuujmtm\s-hofblgxaha-1i9bzcg.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_quorum-0zum92h287dn0\s-hofblgx6r2-0fsne4h.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_witness_set_binding-3f9cnbj79g82o\s-hofblgwm25-157ry66.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\evidence-3ef4c34v82lc4\s-hofblgwq5o-0x9bk3z.lock`: 拒绝访问。 (os error 5)
+
+warning: error deleting lock file for incremental compilation session directory `\\?\D:\Research\zk-state-anchor-exp\target\debug\incremental\test_freshness_binding-3qliq2xv4dgv5\s-hofblgxk0x-1rhfqvr.lock`: 拒绝访问。 (os error 5)
+
+warning: `zk-state-anchor-exp` (bin "encoding_probe") generated 1 warning
+warning: `zk-state-anchor-exp` (bin "encoding_probe" test) generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_log") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_anchor") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_adversarial") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_freshness") generated 1 warning
+warning: `zk-state-anchor-exp` (bin "evidence" test) generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_quorum") generated 1 warning
+warning: `zk-state-anchor-exp` (bin "evidence") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_freshness_binding") generated 1 warning
+warning: `zk-state-anchor-exp` (test "test_witness_set_binding") generated 1 warning
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.16s

@@ -48,6 +48,12 @@ witness set root 不自行设计：直接复用 D1-E `encode_witness_set` 的 he
 
 freshness 初版从 trace 字符串里解析 `match=true`，判定与日志文本耦合。R1 改为从 `TrustedCheckpoint` 结构直接比较 epoch 与 checkpoint_hash；trace 只回显结果，不再决定结果。失败仍然 fail-closed，且不接真实网络服务。
 
-## 8. 创新边界
+## 8. R2：把配置有效性前移到构造期
+
+R1 只保证验签时集合根与 checkpoint 一致，但 `from_verifying_keys()` 会自行计算并信任 `expected_root`，也无法拒绝零阈值、空集合或单钥多 ID。R2 把生产入口改为 `from_trusted_config(entries, threshold, expected_root)`：带外根必须显式传入，构造时重算比对；结构约束和 ID/公钥唯一性也在构造期拒绝。验证器再检查一次结构，防止公开字段被事后篡改形成绕过。
+
+这里没有引入配置文件系统或新协议：expected_root 的来源仍是外部信任假设，本轮只确保接口不能自我生成信任根。测试构造器保留但改名并标注 test-only；实验默认 quorum 仍为 3-of-4，1-of-4 / 4-of-4 只作为合法边界测试。
+
+## 9. 创新边界
 
 本轮结果是**系统集成原型**：把已有的 Merkle inclusion、quorum certificate、规范化编码、本地 epoch 高水位与外部 freshness 接口组合起来，并明确各层的信任边界。没有提出新的密码学原语，也没有证明新的安全属性。如果后续发现某个具体缺口（例如 GR/RR 与 `state_root` 的语义绑定），应围绕该缺口继续研究，而不是把本轮组合包装成创新。

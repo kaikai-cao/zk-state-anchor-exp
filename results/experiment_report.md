@@ -228,3 +228,54 @@ R1 只修复两个边界问题，不重做 D2-B、不扩展协议、不修改 D1
 - 未接入真实 Remote Witness Service 与网络级 freshness；freshness 仍是外部信任假设。
 - 未实现 Halo2 内部 anchor 电路、未修改 D1-E 签名锁定与持久化、未改 3-of-4 参数、未改 RFC6962。
 - 本轮是信任链严谨化，不是论文创新或新的密码学安全证明。
+
+## 12. EXP-D2-B-R2 增补：Trusted Witness Configuration Validation
+
+R2 只处理三个配置边界，不扩大协议范围、不修改 Halo2、不改 3-of-4 默认参数：
+
+1. R2-A：生产配置必须显式传入带外 `expected_root`，构造期重算集合根并比对，不允许自动生成并自我信任；
+2. R2-B：拒绝空集合、零阈值与阈值超过唯一公钥数量；
+3. R2-C：初始化时拒绝重复 witness ID 与不同 ID 复用同一把公钥。
+
+### 12.1 修改要点
+
+- 新增 `WitnessSetConfigError`：`EMPTY_WITNESS_SET` / `THRESHOLD_ZERO` / `THRESHOLD_EXCEEDS_UNIQUE_KEYS` / `DUPLICATE_WITNESS_ID` / `DUPLICATE_PUBLIC_KEY` / `WITNESS_SET_ROOT_MISMATCH`。
+- 新增 `TrustedWitnessSet::from_trusted_config(entries, threshold, expected_root) -> Result<Self, WitnessSetConfigError>`，作为生产配置入口。
+- `from_verifying_keys` 保留为 test-only 兼容入口并标记 `#[doc(hidden)]`；新增明确命名的 `from_verifying_keys_for_tests`，两者都不能证明根来自带外配置，只允许测试与场景构造器使用。
+- `check_binding` / `verify_qc` 再次执行结构校验，防止公开字段被事后篡改形成零阈值空签名绕过；验证器对外仍返回 `INVALID_QUORUM_CERTIFICATE`，trace 保留具体配置错误码。
+- 默认研究参数仍为 3-of-4；1-of-4 / 4-of-4 只作为合法配置边界测试。
+
+### 12.2 C01–C12 配置校验矩阵
+
+| 编号 | 场景 | 预期 | 实际 | 错误码 |
+| --- | --- | --- | --- | --- |
+| C01 | 正确公钥集合 + 正确带外根 + 3-of-4 | ACCEPT | ACCEPT | `OK` |
+| C02 | 正确集合 + 错误带外根 | REJECT | REJECT | `WITNESS_SET_ROOT_MISMATCH` |
+| C03 | threshold = 0 | REJECT | REJECT | `THRESHOLD_ZERO` |
+| C04 | threshold = 5 > 4 把唯一公钥 | REJECT | REJECT | `THRESHOLD_EXCEEDS_UNIQUE_KEYS` |
+| C05 | 空 witness 集合 | REJECT | REJECT | `EMPTY_WITNESS_SET` |
+| C06 | 重复 witness ID | REJECT | REJECT | `DUPLICATE_WITNESS_ID` |
+| C07 | 不同 ID 对应同一公钥 | REJECT | REJECT | `DUPLICATE_PUBLIC_KEY` |
+| C08 | 合法 1-of-4 配置边界 | ACCEPT | ACCEPT | `OK` |
+| C09 | 合法 4-of-4 配置边界 | ACCEPT | ACCEPT | `OK` |
+| C10 | 合法 3-of-4 正常 QC，真实验证器 | ACCEPT | ACCEPT | `ACCEPT` |
+| C11 | 错误 expected_root 不进入验证流程，真实验证器复检 | REJECT | REJECT | `TRUSTED_SET_ROOT_MISMATCH` |
+| C12 | 非法配置 + 空签名 QC 无法绕过，真实验证器复检 | REJECT | REJECT | `THRESHOLD_ZERO` |
+
+原有 47 项测试全部保留并通过；新增 12 项，合计 59 项。
+
+### 12.3 验收结果
+
+- cargo fmt --all -- --check：PASS
+- cargo test --locked：PASS
+- cargo clippy --locked --all-targets -- -D warnings：PASS
+- git diff --check：PASS
+- Python/Rust witness set root 固定向量：PASS
+
+### 12.4 尚未解决的外部信任假设
+
+- expected_root 的来源仍是外部信任假设，本轮只强制显式传入与构造期核对
+- GR/RR 与 D1-E state_root 的事件历史语义绑定未解决
+- 无真实 Remote Witness Service 与网络级 freshness
+
+本轮是配置边界严谨化，不写成新的密码学创新；R2 完成后冻结 D2-B 基础信任锚定实现。

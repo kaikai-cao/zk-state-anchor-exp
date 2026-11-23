@@ -43,7 +43,8 @@ pub struct VerifyRequest {
     pub expected: ExpectedState,
     pub client: ClientState,
     pub freshness: Box<dyn FreshnessProvider>,
-    /// 带外显式可信集合。验证器不持有签名私钥，也不从公开 seed 派生密钥。
+    /// 带外显式可信集合。生产路径必须由 `TrustedWitnessSet::from_trusted_config`
+    /// 用调用方提供的 expected_root 构造；验证器不持有签名私钥，也不从公开 seed 派生密钥。
     pub trusted_witness_set: TrustedWitnessSet,
 }
 
@@ -75,6 +76,7 @@ fn qc_detail(err: QcError, req: &VerifyRequest) -> String {
             req.trusted_witness_set.threshold
         ),
         QcError::InvalidSignature => "invalid signature from trusted witness".to_string(),
+        QcError::InvalidWitnessSetConfig(_) => "invalid witness set configuration".to_string(),
         _ => code.to_string(),
     };
     format!("{} {}", code, human)
