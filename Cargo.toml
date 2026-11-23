@@ -1,0 +1,10 @@
+[package]
+name = "zk-state-anchor-exp"
+version = "0.1.0"
+edition = "2021"
+description = "EXP-D2-B-01: ZkStateAnchor protocol, reference implementation and adversarial tests"
+
+[dependencies]
+sha2 = "=0.10.9"
+ed25519-dalek = "=2.2.0"
+hex = "=0.4.3"

@@ -1,0 +1,109 @@
+   Compiling zk-state-anchor-exp v0.1.0 (D:\Research\zk-state-anchor-exp)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.28s
+     Running unittests src\lib.rs (target\debug\deps\zk_state_anchor_exp-d8c384afd6905543.exe)
+
+running 4 tests
+test checkpoint::tests::d1e_encoding_matches_python_reference ... ok
+test encoding::tests::field_bytes_reject_non_canonical_value ... ok
+test encoding::tests::domain_encoding_is_stable ... ok
+test log::tests::inclusion_works_for_non_power_of_two_tree ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\encoding_probe.rs (target\debug\deps\encoding_probe-5c8dd08b355ecee1.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\bin\evidence.rs (target\debug\deps\evidence-4c185573a388e539.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\test_adversarial.rs (target\debug\deps\test_adversarial-9c2c08eee921c716.exe)
+
+running 4 tests
+test t13_checkpoint_epoch_regression_rejected ... ok
+NORMAL_PATH_EXECUTION_RECORD:
+[1/10] anchor_record | OK | record.anchor == request.anchor
+[1/10] anchor_digest | OK | computed=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9 provided=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9
+[2/10] public_inputs | OK | GR_h2=00000000000000000000000000000000000000000000000000000000000003e9 GR_anchor=00000000000000000000000000000000000000000000000000000000000003e9 RR_h2=00000000000000000000000000000000000000000000000000000000000003ea RR_anchor=00000000000000000000000000000000000000000000000000000000000003ea
+[3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
+[3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
+[4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] quorum_certificate | OK | signatures=3 detail=valid
+[6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
+[7/10] no_rollback | OK | known_epoch=7 offered_epoch=8
+[7/10] checkpoint_chain | OK | previous_hash=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941 known=2ed224e4e48beac7770bef206b28347692f6b0c5f71b26a15a3d90e364864941
+[8/10] anchor_predecessor | OK | anchor_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb trusted_prev=a8ebc7656a314ad2a725c60cf45c369a41e582942f5ed47c2d0767a2f3364beb
+[9/10] freshness | OK | HonestFreshnessProvider latest_epoch=8 match=true
+[10/10] all_checks | OK | all nine checks passed
+VERDICT: ACCEPT
+test execution_record_normal_path_is_complete ... ok
+ROLLBACK_ATTACK_EXECUTION_RECORD:
+[1/10] anchor_record | OK | record.anchor == request.anchor
+[1/10] anchor_digest | OK | computed=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9 provided=d6ab825ceee46d25dacbe3a7c721f9e7d96d4eae62192242d974a59f647537e9
+[2/10] public_inputs | OK | GR_h2=00000000000000000000000000000000000000000000000000000000000003e9 GR_anchor=00000000000000000000000000000000000000000000000000000000000003e9 RR_h2=00000000000000000000000000000000000000000000000000000000000003ea RR_anchor=00000000000000000000000000000000000000000000000000000000000003ea
+[3/10] epoch_binding | OK | anchor=8 checkpoint=8 expected=8
+[3/10] policy_binding | OK | anchor=1 checkpoint=1 expected=1
+[4/10] log_inclusion | OK | log_id=authz-log-1 index=1 size=3 cp_log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625
+[5/10] quorum_certificate | OK | signatures=3 detail=valid
+[6/10] checkpoint_fields | OK | chain_id=authz-chain-1 state_root=8bc9bfca4ef985be110271fe70370d560e3c531d5c146ea5bb328b634d97fa41 log_root=63c1daba4787f5a90834a2385a30f79384c4039ffe61928c5f25e710a8301625 sizes_match=true
+[7/10] no_rollback | FAIL | known_epoch=9 offered_epoch=8
+VERDICT: REJECT CHECKPOINT_ROLLBACK
+test execution_record_rollback_attack_stops_before_freshness ... ok
+test all_twenty_scenarios_match_task_package_expectations ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests\test_anchor.rs (target\debug\deps\test_anchor-99b21bc638e6ac06.exe)
+
+running 9 tests
+test t07_forged_anchor_digest_rejected ... ok
+test t05_modified_policy_version_rejected ... ok
+test t02_modified_grant_root_rejected ... ok
+test t03_modified_revoke_root_rejected ... ok
+test t18_halo2_public_inputs_mismatch_rejected ... ok
+test t19_old_policy_version_rejected ... ok
+test t04_modified_epoch_rejected ... ok
+test t06_modified_predecessor_rejected ... ok
+test t01_normal_anchor_accepts ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests\test_freshness.rs (target\debug\deps\test_freshness-0bfa037863604ba6.exe)
+
+running 4 tests
+test t15_cold_start_with_honest_freshness_accepts ... ok
+test t17_freshness_unavailable_rejected ... ok
+test t16_cold_start_with_stale_freshness_rejected ... ok
+test t14_client_high_watermark_rejects_rollback ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests\test_log.rs (target\debug\deps\test_log-77bc7e8e11ea66b7.exe)
+
+running 4 tests
+test merkle_inclusion_supports_non_power_of_two_tree ... ok
+test t20_modified_log_record_rejected ... ok
+test t09_other_log_proof_rejected ... ok
+test t08_tampered_inclusion_proof_rejected ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests\test_quorum.rs (target\debug\deps\test_quorum-e37fda0a9397b860.exe)
+
+running 3 tests
+test t11_insufficient_quorum_rejected ... ok
+test t10_invalid_qc_signature_rejected ... ok
+test t12_checkpoint_parent_mismatch_rejected ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+   Doc-tests zk_state_anchor_exp
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
